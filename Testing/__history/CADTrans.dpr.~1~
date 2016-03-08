@@ -1,0 +1,19 @@
+program CADTrans;
+
+uses
+  Forms,
+  MainFormUnit in 'MainFormUnit.pas' {MainForm},
+  GearTypesUnit in 'GearTypesUnit.pas',
+  GearClassesUnit in 'GearClassesUnit.pas',
+  Gost in 'Gost.pas',
+  DebugFormUnit in 'DebugFormUnit.pas' {DebugForm},
+  Belts.Narrow in 'Belts.Narrow.pas';
+
+{$R *.res}
+
+begin
+  Application.Initialize;
+  Application.MainFormOnTaskbar := True;
+  Application.CreateForm(TMainForm, MainForm);
+  Application.Run;
+end.

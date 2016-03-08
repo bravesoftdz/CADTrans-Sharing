@@ -1,0 +1,574 @@
+unit Belts.Film;
+{ {
+  Плёночная ремённая передача
+}
+
+interface
+
+uses Classes, GearTypesUnit, Graphics, SysUtils, Dialogs,
+  GearClassesUnit, Gost;
+// System.Classes, GearTypesUnit, Vcl.Graphics, System.SysUtils, Vcl.Dialogs,
+// GearClassesUnit, Gost;
+
+type
+  TFilmBelt = class(TBelt)
+  private
+    // 1 Константы, определяются в конструкторе
+    alfa_min, nyu_max, V_max, f_pr: extended;
+    // 1 Поле, хранящее угол наклона передачи
+    { 0 - Менее 60°, 1 - От 60° до 80°, 2 - Более 80° }
+    FQ: integer;
+    // 1 Поле, хранящее входные данные для коллекции
+    FInput: TFilmInput;
+    // 1 Поле, хранящее коллекцию выходных данных
+    FGears: TFilmOutputs;
+    // 1 Функция проверки передачи на работоспособность True - работоспособна
+    function Check(Gear: TFilmOutput): Boolean;
+    // 1 Функция расчёта одной передачи
+    function Calculate(VarD1: extended; VarCordType: integer): TFilmOutput;
+    // 1 Функция добавления передачи в коллекцию
+    function Add(Gear: TFilmOutput): integer;
+    function GetGears(Index: integer): TFilmOutput;
+    procedure SetGears(Index: integer; const Value: TFilmOutput);
+    procedure SetQ(const Value: integer);
+  protected
+    procedure SetD1(const Value: extended); override;
+    procedure SetA(const Value: extended); override;
+    // 1 Процедура проверки корректности входных данных
+    procedure Checking; override;
+  public
+    { TODO : Сделать поле CordTypeIndex свойством }
+    // 1 Поле, хранящее тип корд-ткани ремня
+    CordTypeIndex: integer;
+    // 1 Функция возвращает мин. допуст. диаметр ведущего шкива для текущих параметров
+    function MinDiameter: extended; override;
+    // 1 Функция выводит тип корд-ткани (номер задан в CordTypeIndex)
+    function CordBeltType(CordTypeIndex: integer): String;
+    constructor Create(Input: TFilmInput); overload;
+    constructor Create; overload;
+    // 1 Метод выводит первый элемент коллекции
+    function First: TFilmOutput;
+    // 1  Метод выводит последний элемент коллекции
+    function Last: TFilmOutput;
+    // 1 Метод очистки коллекции
+    procedure Clear; override;
+    // 1  Метод выводит количество элементов в коллекции
+    function Count: integer; override;
+    // 1 Свойство для вывода входных данных для коллекции
+    property Input: TFilmInput read FInput;
+    // 1 Функция генерации коллекции передач
+    function Collect: integer;
+    // 1 Свойство для работы с коллекцией
+    property Gears[Index: integer]: TFilmOutput read GetGears
+      write SetGears; default;
+    // 1 Угол наклона передачи
+    property Q: integer read FQ write SetQ;
+  end;
+
+implementation
+
+{
+  ******************************** TFilmBelt *******************************
+}
+constructor TFilmBelt.Create(Input: TFilmInput);
+begin
+  // inherited Create;
+
+  FFullName := 'Плёночная ремённая передача';
+  FBeltType := btFilm;
+
+  { В режиме отладки будет выводиться дополнительное сообщение с типом ошибки }
+{$IFDEF Debug}
+  try
+{$ENDIF}
+    P1 := Input.P1;
+    n1 := Input.n1;
+    CordTypeIndex := Input.CordTypeIndex;
+    d1 := Input.d1;
+    up := Input.up;
+    a := Input.a;
+    Cp := Input.Cp;
+    Tension := Input.Tension;
+{$IFDEF Debug}
+  except
+    on E: Exception do
+      ShowMessage('[Input] Вызвана ошибка ' + E.ClassName + ' с сообщением : ' +
+        E.Message);
+  end;
+{$ENDIF}
+  // проверочные константы
+  alfa_min := 150; { Минимально допустимый угол обхвата }
+  nyu_max := 50; { Максимально допустимое число пробегов }
+  V_max := 100; { Максимально допустимая скорость ремня }
+  f_pr := 0.25; { Приведенный коэффициент трения }
+
+  SetLength(FGears, 0);
+
+{$IFDEF Debug}
+  try
+{$ENDIF}
+    Collect;
+{$IFDEF Debug}
+  except
+    on E: Exception do
+      ShowMessage('[Collect] Вызвана ошибка ' + E.ClassName + ' с сообщением : '
+        + E.Message);
+  end;
+{$ENDIF}
+end;
+
+function TFilmBelt.First: TFilmOutput;
+begin
+  if Count > 0 then
+    Result := Gears[0]
+  else
+    raise EListError.Create
+      ('[TFilmBelt.First] Попытка выбрать первую передачу в пустой коллекции');
+end;
+
+function TFilmBelt.GetGears(Index: integer): TFilmOutput;
+begin
+  if Index < Count then
+    Result := FGears[Index]
+  else
+    raise EListError.Create
+      ('[TFilmBelt.GetGears] Попытка обратиться к передаче с номером больше максимального');
+end;
+
+function TFilmBelt.CordBeltType(CordTypeIndex: integer): String;
+begin
+  inherited;
+
+  if CordTypeIndex <= High(FilmT) then
+    Result := FilmT[CordTypeIndex]
+  else
+    raise EAccessViolation.Create
+      ('[TFilmBelt.CordBeltType] Некорректно задан номер корд-ткани (TypeIndex)');
+end;
+
+function TFilmBelt.Last: TFilmOutput;
+begin
+  if Count > 0 then
+    Result := Gears[High(FGears)]
+  else
+    raise EListError.Create
+      ('[TFilmBelt.Last] Попытка выбрать последнюю передачу в пустой коллекции');
+end;
+
+function TFilmBelt.MinDiameter: extended;
+var
+  Tip_film: integer;
+  // если тип корд-ткани задано как АВТО, то минимально допустимый тип корд-ткани
+  // рассчитается и будет храниться в этой переменной
+begin
+  if n1 = 0 then
+    raise EZeroDivide.CreateFmt
+      ('[TFilmBelt.MinDiameter] Ошибка деления на ноль при расчете минимально допустимого диаметра шкива (D1). Частота вращения ведущего шкива (n1) не может быть равна нулю',
+      []);
+
+  Tip_film := 0;
+  if SectionIndex = 0 then
+  begin
+    inc(Tip_film);
+
+    if Tip_film <= High(FilmT) then
+      Result := TArrayD[Round(Array_plen[Tip_film, 2])]
+    else
+      raise ERangeError.CreateFmt
+        ('[TFilmBelt.MinDiameter] При попытке рассчитать минимально допустимый диаметр шкива (D1) неправильно выбирается тип корд-ткани (Tip_film=%d)',
+        [Tip_film]);
+  end
+  else
+    // если сечение задано, то минимальный диаметр возьмется из 2 столбца
+    // массива Array_plen (возьмется номер диаметра, а не само значение)
+    Result := TArrayD[Round(Array_plen[SectionIndex, 2])];
+end;
+
+procedure TFilmBelt.SetA(const Value: extended);
+begin
+  inherited;
+
+end;
+
+procedure TFilmBelt.SetD1(const Value: extended);
+var
+  Tip_film: integer;
+  // даже если сечение задано как АВТО, то минимально допустимый тип сечения
+  // рассчитается и будет храниться в этой переменной
+begin
+  if n1 = 0 then
+    raise EZeroDivide.Create
+      ('[TFilmBelt.SetD1] Ошибка деления на ноль при записи диаметра шкива (D1), частота вращения (n1) не должна быть равна нулю');
+
+  Tip_film := 0;
+
+  if CordTypeIndex = 0 then
+  begin
+    inc(Tip_film);
+    if Tip_film > High(FilmT) then
+      raise ERangeError.CreateFmt
+        ('[TFilmBelt.SetD1] При попытке рассчитать минимально допустимый диаметр шкива (D1) неправильно выбирается тип корд-ткани (Tip_film=%d)',
+        [Tip_film]);
+  end
+  else
+    Tip_film := CordTypeIndex;
+
+  { Ограничение берётся из TArrayD[Round(Array_plen[Section,2])], 2 столбец в
+    массиве Array_plen это номер (в массиве TArrayD) минимально допустимого диаметра шкива }
+
+  { TODO : Это условие актуально, если передаточное отношение больше единицы,
+    если передаточное отношение меньше единицы должно быть немного другое условие }
+
+  if (Value < MinDiameter) and (Value <> 0) then
+    raise ERangeError.CreateFmt
+      ('[TFilmBelt.SetD1] Диаметр шкива (D1) не может быть равен %g, минимально допустимое значение для корд-ткани ремня толщиной %s мм, равно %g мм (ГОСТ 20889-88)',
+      [Value, FilmT[Tip_film], MinDiameter]);
+
+  inherited;
+end;
+
+procedure TFilmBelt.SetGears(Index: integer; const Value: TFilmOutput);
+begin
+  if Index < Count then
+    Gears[Index] := Value
+  else
+    raise EListError.Create
+      ('[TFilmBelt.SetGears] Попытка записать данные в передачу с номером больше максимального');
+end;
+
+procedure TFilmBelt.SetQ(const Value: integer);
+begin
+  if (Value >= 0) and (Value <= 2) then
+    FQ := Value
+  else
+    raise ERangeError.Create
+      ('[TFilmBelt.SetQ] Номер угла наклона передачи (Q) может быть равен  только 0, 1 или 2');
+end;
+
+function TFilmBelt.Add(Gear: TFilmOutput): integer;
+begin
+  SetLength(FGears, Length(FGears) + 1);
+  FGears[High(FGears)] := Gear;
+  Result := Length(FGears);
+end;
+
+function TFilmBelt.Calculate(VarD1: extended; VarCordType: integer)
+  : TFilmOutput;
+Var
+  b0, Aa, he, hf, b, h, y0, C_alfa, C_v, Sigma_t, f1, t1, nol, deln: extended;
+  Ft, p_dop, Ft_dop: extended;
+  b_max, p0, C_Q, Sigma_e, Sdelta: extended;
+  ib_max, ib_min: integer;
+  Output: TFilmOutput;
+  id2: integer;
+  l_max: extended;
+  F2, alfa_c, m, qqq, qw: extended;
+  { F1 - натяжение ведущей ветви;
+    F2 - натяжение ведомой ветви;
+    Fb - давление на валы ремня;
+    F0 - усилие предварительного натяжения;
+    Ft - окружное усилие в передаче }
+Const
+  f = 0.25;
+  // C = 0.99; Скольжение ремня принимается равным 1%
+begin
+  inherited;
+
+  Output.a := a;
+  Output.d1 := VarD1;
+  Output.CordTypeIndex := VarCordType;
+
+  { ----------------------- Расчет геометрии передачи -------------------------- }
+
+  try
+    if up > 1 then
+      Output.d2 := Output.d1 * up
+    else
+      Output.d2 := Output.d1 / up;
+  except
+    on E: EZeroDivide do
+      raise EZeroDivide.Create
+        ('[TFilmBelt.Calculate] Ошибка деления на ноль при расчёте диаметра ведомого шкива (d2), передаточное отношение (up) не может быть равно нулю');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте диаметра ведомого шкива (d2)');
+  end;
+
+  try
+    RoundGOST(TArrayD, 1, 38, Output.d2, Output.d2, id2);
+  except
+    on E: Exception do
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Не удалось округлить диаметр ведомого шкива (d2) до ближайшего значения из ряда линейных размеров');
+  end;
+
+  // Если межосевое расстояние задано Авто, рассчитываем его по диаметрам
+  if a = 0 then
+    Output.a := 1.5 * (Output.d1 + Output.d2);
+  // Далее a никогда не используется, только Output.a
+
+  Output.L := 2 * Output.a + Pi * (Output.d1 + Output.d2) / 2 +
+    sqr(Output.d2 - Output.d1) / (4 * Output.a);
+
+  try
+    RoundGOST(TArrayLP, 1, Round(Array_plen[Output.CordTypeIndex, 7]), Output.L,
+      Output.L, id2);
+  except
+    on E: Exception do
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Не удалось округлить длину ремня (L) до ближайшего допустимого значения из массива длин плёночных ремней');
+  end;
+
+  try
+    Output.a := (Output.L - Pi * (Output.d1 + Output.d2) / 2) / 4 +
+      sqrt(sqr(Output.L - Pi * (Output.d1 + Output.d2) / 2) - 2 *
+      sqr(Output.d1 - Output.d2)) / 4;
+  except
+    on E: Exception do
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте межосевого расстояния (a). Возможно, неправильно рассчиталась длина ремня (L)');
+  end;
+
+  try
+    Output.alfa := 180 - (Output.d2 - Output.d1) * 57 / Output.a;
+  except
+    on E: EZeroDivide do
+      raise EZeroDivide.Create
+        ('[TFilmBelt.Calculate] Ошибка деления на ноль при расчёте угла обхвата ремня (alfa), уточнённое межосевое расстояние (a) оказалось равно нулю');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте угла обхвата ремня (alfa)');
+  end;
+
+  { ----------------------- Расчет кинематических параметров передачи ---------- }
+
+  if up > 1 then
+  begin
+    Output.V := Pi * Output.d1 * n1 / 60000
+  end
+  else
+  begin
+    Output.V := Pi * Output.d2 * n1 / 60000;
+  end;
+
+  try
+    Output.nyu := 1000 * Output.V / Output.L;
+  except
+    on E: EZeroDivide do
+      raise EZeroDivide.Create
+        ('[TFilmBelt.Calculate] Ошибка деления на ноль при расчёте пробега ремня (nyu), длина ремня (L) оказалась равна нулю');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте пробега ремня (nyu)');
+  end;
+
+  { ----------------------- Основной расчёт параметров передачи ---------------- }
+
+  try
+    b_max := Array_plen[VarCordType, 8];
+    p0 := Array_plen[VarCordType, 5];
+    ib_max := Round(Array_plen[VarCordType, 4]);
+    ib_min := Round(Array_plen[VarCordType, 3]);
+    Sdelta := Array_plen[VarCordType, 1];
+  except
+    on E: Exception do
+      raise EAccessViolation.Create
+        ('[TFilmBelt.Calculate] Подбор значений из таблиц вызвал ошибку, неверно задан тип корд-ткани (VarCordType)');
+  end;
+
+  C_alfa := 1 - 0.003 * (180 - Output.alfa);
+  C_v := 1.04 - 0.0004 * Output.V * Output.V;
+
+  if Tension = ttAutomatic then
+    case Q of
+      0:
+        C_Q := 1;
+      1:
+        C_Q := 0.9;
+      2:
+        C_Q := 0.8;
+    end
+  else
+    C_Q := 1;
+
+  try
+    Ft := 1000 * P1 / Output.V;
+  except
+    on E: EZeroDivide do
+      raise EZeroDivide.Create
+        ('[TFilmBelt.Calculate] Ошибка деления на ноль при расчёте окружного усилия (Ft), скорость ремня (V) оказалась равна нулю');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте окружного усилия (Ft)');
+  end;
+
+  { ширина ремня }
+  Output.b := Ft / (p0 * C_alfa * C_v * Cp * C_Q);
+
+  If Output.b > b_max then
+  begin
+    raise ERangeError.CreateFmt
+      ('[TFilmBelt.Calculate] Ширина ремня (b) не может быть равна %g мм, максимально допустимое значение (b_max) равно %g мм ',
+      [Output.b, b_max]);
+  end
+  else
+    TruncGost(TArrayBP, ib_min, ib_max, Output.b, Output.b, ib_min);
+
+  Output.Bs := TArrayBP[ib_min + 1];
+
+  { ----------------------- Расчет сил ----------------------------------------- }
+
+  alfa_c := 0.7 * Output.alfa * Pi / 180;
+  m := exp(f_pr * alfa_c);
+
+  // ниже нет проверок по m, потому что она гарантированно больше единицы
+  f1 := m / (m - 1) * Ft;
+  F2 := f1 - Ft;
+  Output.F0 := Ft / 2 * ((m + 1) / (m - 1));
+
+  try
+    Output.Fb := sqrt(sqr(f1) + sqr(F2) - 2 * f1 * F2 *
+      cos((180 - Output.alfa) * Pi / 180));
+  except
+    on E: EInvalidOp do
+      raise EInvalidOp.Create
+        ('[TFilmBelt.Calculate] Взят корень из отрицательного значения при расчёте давления на валы ремня (Fb)');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте давления на валы ремня (Fb)');
+  end;
+
+  Output.Vol := (Output.Bs * (Pi * (sqr(Output.d1) + sqr(Output.d2)) + 4 *
+    Output.a * (Output.d1 + Output.d2))) / 8 * 1E-6;
+
+  try
+    qw := exp(f * alfa_c);
+
+    Sigma_e := 0.1 * qw * Ft / (Sdelta * Output.b * (qw - 1)) + 90 * Sdelta /
+      Output.d1 + 1.2E-3 * sqr(Output.V);
+
+    Output.Lh := 1.1E5 * Output.L / (Output.V * exp(4 * ln(Sigma_e)));
+  except
+    on E: EZeroDivide do
+      raise EZeroDivide.Create
+        ('[TFilmBelt.Calculate] Ошибка деления на ноль при расчёте долговечности (Lh)');
+    on E: EInvalidOp do
+      raise EInvalidOp.Create
+        ('[TFilmBelt.Calculate] Под логарифмом оказалось отрицательное или нулевое значение при расчёте долговечности (Lh)');
+    else
+      raise Exception.Create
+        ('[TFilmBelt.Calculate] Ошибка при расчёте долговечности (Lh)');
+  end;
+
+  Result := Output;
+end;
+
+function TFilmBelt.Check(Gear: TFilmOutput): Boolean;
+begin
+  Result := True;
+
+  if Gear.V > V_max then
+    Result := False;
+
+  if Gear.alfa < alfa_min then
+    Result := False;
+
+  if Gear.nyu > nyu_max then
+    Result := False;
+end;
+
+procedure TFilmBelt.Checking;
+begin
+  inherited;
+end;
+
+procedure TFilmBelt.Clear;
+begin
+  if Count <> 0 then
+    SetLength(FGears, 0);
+end;
+
+function TFilmBelt.Collect: integer;
+var
+  CurrGear: TFilmOutput;
+  d1x: extended;
+  CordIndex, id: integer;
+begin
+  Clear;
+  Result := 0;
+
+  if (CordTypeIndex <> 0) and (d1 <> 0) then
+  begin
+    CurrGear := Calculate(d1, CordTypeIndex);
+    if Check(CurrGear) then
+      Result := Add(CurrGear);
+  end;
+
+  if (CordTypeIndex = 0) and (d1 <> 0) then
+  begin
+    for CordIndex := Low(FilmT) + 1 to High(FilmT) do
+    begin
+      CurrGear := Calculate(d1, CordIndex);
+      if Check(CurrGear) then
+        Result := Add(CurrGear);
+    end;
+  end;
+
+  if (CordTypeIndex <> 0) and (d1 = 0) then
+  begin
+    { TODO : Проверить что выдается диаметр }
+    d1x := TArrayD[Round(Array_plen[CordTypeIndex, 2])];
+    repeat
+      CurrGear := Calculate(d1x, CordTypeIndex);
+      d1x := 1.25 * d1x;
+      RoundGOST(TArrayD, 1, 38, d1x, d1x, id);
+      if Check(CurrGear) then
+      begin
+        Result := Add(CurrGear);
+      end;
+    until CurrGear.L >= TArrayL[Round(Array_plen[CordTypeIndex, 7])];
+  end;
+
+  if (CordTypeIndex = 0) and (d1 = 0) then
+  begin
+    for CordIndex := Low(FilmT) + 1 to High(FilmT) do
+    begin
+      { TODO : Проверить что выдается диаметр }
+      d1x := TArrayD[Round(Array_plen[CordTypeIndex, 2])];
+      repeat
+        CurrGear := Calculate(d1x, CordIndex);
+        d1x := 1.25 * d1x;
+        RoundGOST(TArrayD, 1, 38, d1x, d1x, id);
+        if Check(CurrGear) then
+        begin
+          Result := Add(CurrGear);
+        end;
+      until CurrGear.L >= TArrayL[Round(Array_plen[CordTypeIndex, 7])];
+    end;
+  end;
+
+end;
+
+function TFilmBelt.Count: integer;
+begin
+  Result := Length(FGears);
+end;
+
+constructor TFilmBelt.Create;
+var
+  NB: TFilmInput;
+begin
+  NB.P1 := 3;
+  NB.n1 := 1000;
+  NB.up := 2;
+  NB.d1 := 140;
+  NB.a := 0;
+  NB.Q := 1;
+  NB.Cp := 1;
+  NB.Tension := ttAutomatic;
+  NB.CordTypeIndex := 0;
+
+  Create(NB);
+end;
+
+end.

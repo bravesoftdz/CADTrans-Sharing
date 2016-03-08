@@ -1,0 +1,36 @@
+﻿	<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+		<PropertyGroup>
+			<ProjectGuid>{BBFC4704-1A45-4105-A9F8-227A47909EE1}</ProjectGuid>
+		</PropertyGroup>
+		<ItemGroup>
+			<Projects Include="CADTrans.dproj">
+				<Dependencies/>
+			</Projects>
+		</ItemGroup>
+		<ProjectExtensions>
+			<Borland.Personality>Default.Personality.12</Borland.Personality>
+			<Borland.ProjectType/>
+			<BorlandProject>
+				<Default.Personality/>
+			</BorlandProject>
+		</ProjectExtensions>
+		<Target Name="CADTrans">
+			<MSBuild Projects="CADTrans.dproj"/>
+		</Target>
+		<Target Name="CADTrans:Clean">
+			<MSBuild Targets="Clean" Projects="CADTrans.dproj"/>
+		</Target>
+		<Target Name="CADTrans:Make">
+			<MSBuild Targets="Make" Projects="CADTrans.dproj"/>
+		</Target>
+		<Target Name="Build">
+			<CallTarget Targets="CADTrans"/>
+		</Target>
+		<Target Name="Clean">
+			<CallTarget Targets="CADTrans:Clean"/>
+		</Target>
+		<Target Name="Make">
+			<CallTarget Targets="CADTrans:Make"/>
+		</Target>
+		<Import Project="$(BDS)\Bin\CodeGear.Group.Targets" Condition="Exists('$(BDS)\Bin\CodeGear.Group.Targets')"/>
+	</Project>

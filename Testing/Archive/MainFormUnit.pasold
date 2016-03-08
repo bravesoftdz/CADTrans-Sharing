@@ -1,0 +1,630 @@
+unit MainFormUnit;
+
+{$MODE Delphi}
+
+interface
+
+uses LCLIntf, Menus, ImgList, Controls, StdActns, Classes, ActnList,
+  ComCtrls, Forms, ToolWin, Dialogs, Messages, NTSGTypes, PropertiesDataUnit,
+  Graphics, ExtCtrls{, JPeg}, LResources, PrintersDlgs;
+
+type
+  TMainNTSGForm = class(TForm)
+    StatusBar: TStatusBar;
+    MainActionList: TActionList;
+    EditCut1: TEditCut;
+    EditCopy1: TEditCopy;
+    EditPaste1: TEditPaste;
+    FileNew: TAction;
+    FileSave: TAction;
+    FileExit: TAction;
+    FileOpen: TAction;
+    FileSaveAs: TAction;
+    WindowCascade1: TWindowCascade;
+    WindowTileHorizontal1: TWindowTileHorizontal;
+    WindowArrangeAll1: TWindowArrange;
+    WindowMinimizeAll1: TWindowMinimizeAll;
+    HelpAbout1: TAction;
+    FileClose: TWindowClose;
+    WindowTileVertical1: TWindowTileVertical;
+    ToolBar2: TToolBar;
+    ToolButton1: TToolButton;
+    ToolButton2: TToolButton;
+    ToolButton3: TToolButton;
+    ToolButton4: TToolButton;
+    ToolButton5: TToolButton;
+    ToolButton6: TToolButton;
+    ToolButton9: TToolButton;
+    ImageList1: TImageList;
+    MainMenu: TMainMenu;
+    MenuItem1: TMenuItem;
+    N2: TMenuItem;
+    N10: TMenuItem;
+    SaveDat: TMenuItem;
+    qqq: TMenuItem;
+    N6: TMenuItem;
+    MenuExit: TMenuItem;
+    N3: TMenuItem;
+    N16: TMenuItem;
+    N8: TMenuItem;
+    ToolButton12: TToolButton;
+    N7: TMenuItem;
+    Help1: TAction;
+    ToolButton7: TToolButton;
+    FileSaveAll: TAction;
+    MMService: TMenuItem;
+    ServiceProperties1: TAction;
+    N4: TMenuItem;
+    ImageList2: TImageList;
+    ToolButton8: TToolButton;
+    N5: TMenuItem;
+    Refresh1: TAction;
+    ToolButton11: TToolButton;
+    ReportSave: TAction;
+    N13: TMenuItem;
+    ToolButton13: TToolButton;
+    SaveReportDialog: TSaveDialog;
+    OpenDialog: TOpenDialog;
+    SaveDialog: TSaveDialog;
+    FilePrint: TAction;
+    ToolButton10: TToolButton;
+    N14: TMenuItem;
+    N15: TMenuItem;
+    MainImage: TImage;
+    PrintDialog: TPrintDialog;
+    FileQuickPrint: TAction;
+    procedure FileNewExecute(Sender: TObject);
+    procedure FileExitExecute(Sender: TObject);
+    procedure FileSaveExecute(Sender: TObject);
+    procedure N3Click(Sender: TObject);
+    procedure ServiceProperties1Execute(Sender: TObject);
+    procedure FileCloseExecute(Sender: TObject);
+    procedure Refresh1Execute(Sender: TObject);
+    procedure FileOpenExecute(Sender: TObject);
+    procedure FileSaveAsExecute(Sender: TObject);
+    procedure HelpAbout1Execute(Sender: TObject);
+    procedure ReportSaveExecute(Sender: TObject);
+    procedure FilePrintExecute(Sender: TObject);
+    procedure ViewLgIconExecute(Sender: TObject);
+    procedure ViewSmIconExecute(Sender: TObject);
+    procedure ViewListExecute(Sender: TObject);
+    procedure ViewReportExecute(Sender: TObject);
+    procedure FormCreate(Sender: TObject);
+    procedure StatusBarDrawPanel(StatusBar: TStatusBar;
+      Panel: TStatusPanel; const Rect: TRect);
+    procedure FileQuickPrintExecute(Sender: TObject);
+  private
+    { Private declarations }
+    FOldClientProc, FNewClientProc: TFarProc;
+    FDrawDC: hDC;
+    procedure DrawCentred;
+    procedure ClientWndProc(var Message: TMessage);
+  protected
+    procedure CreateWnd; override;
+  public
+    { Public declarations }
+    AppAccuracy: extended;
+    UserName: PChar;
+    Version: String;
+    Properties: TProperties;
+    procedure ShowHint(Sender: TObject);
+  end;
+
+var
+  MainNTSGForm: TMainNTSGForm;
+
+implementation
+
+uses AboutFormUnit, Math, ChildFormUnit, EMROutputFormUnit, SysUtils, PropertiesFormUnit,
+  DateUtils, OptOutputFormUnit, NTSGDialogs;
+
+
+procedure TMainNTSGForm.FileNewExecute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на NewButton
+ TChildForm.Create(Application);
+end;
+
+procedure TMainNTSGForm.FileExitExecute(Sender: TObject);
+begin
+ while MDIChildCount<>0 do
+  ActiveMDIChild.Close;
+ Close;
+end;
+
+procedure TMainNTSGForm.N3Click(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на SaveAllButton
+end;
+
+procedure TMainNTSGForm.ServiceProperties1Execute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на PropertyButton
+ try
+  PropForm := TPropForm.Create(Self);
+  PropForm.ShowModal;
+ finally
+  PropForm.Free;
+  PropForm := nil;
+ end;
+end;
+
+procedure TMainNTSGForm.FileCloseExecute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на CloseButton (закрытие дочернего окна)
+ ActiveMDIChild.Close;
+end;
+
+procedure TMainNTSGForm.Refresh1Execute(Sender: TObject);
+var i:integer;
+begin
+ // TODO: Обработчик нажатия на RefreshButton
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   (ActiveMDIChild as TChildForm).Caption:=(ActiveMDIChild as TChildForm).NTSGData.Caption;
+
+   with (ActiveMDIChild as TChildForm) do
+    begin
+     if NTSGData.HasEMRInput then
+      begin
+       EMRListView.Items[0].Caption:='Изменить исходные данные';
+       EMRListView.Items[1].ImageIndex:=isEMR;
+       EMRListView.Items[2].ImageIndex:=isEMRGreyLupa;
+       EMRListView.Items[0].SubItems[1]:='Выполнено';
+       EMRListView.Items[0].SubItems[2]:=NTSGData.Input.UserName;
+  
+       EMRProgressBar.Position:=EMRProgressBar.Min;
+       FileSave.Enabled:=False;
+       FileSaveAs.Enabled:=False;
+      end;
+  
+     if NTSGData.HasEMROutput then
+      begin
+       FileSave.Enabled:=True;
+       FileSaveAs.Enabled:=True;
+  
+       EMRProgressBar.Position:=EMRProgressBar.Max;
+       EMRListView.Items[2].ImageIndex:=isEMRLupa;
+       EMRListView.Items[1].ImageIndex:=isEMR;
+       EMRListView.Items[0].SubItems[1]:='Выполнено';
+       EMRListView.Items[0].SubItems[2]:=NTSGData.Input.UserName;
+       EMRListView.Items[1].SubItems[1]:='Выполнено';
+       EMRListView.Items[1].SubItems[2]:=NTSGData.Output.UserName;
+
+       if GeoListView.Items.Count <> 0 then
+        begin
+         GeoListView.Items[0].ImageIndex:=isEMRLupa;
+         GeoListView.Items[1].ImageIndex:=isActive;
+         GeoListView.Items[2].ImageIndex:=isActive;
+         GeoListView.Items[0].SubItems[1]:='Выполнено';
+        end;
+      end;
+
+     if NTSGData.HasEMRChanged then
+      begin
+       EMRListView.Items[1].SubItems[1]:='Параметры изменены';
+       EMRProgressBar.Position:=EMRProgressBar.Min;
+       EMRListView.Items[2].ImageIndex:=isEMRGreyLupa;
+      end;
+
+     if NTSGData.Geometry.HasStatorData then
+      begin
+       if GeoListView.Items.Count <> 0 then
+        begin
+         GeoListView.Items[0].Caption:='Изменить геометрию статора';
+         GeoListView.Items[0].SubItems[1]:='Выполнено';
+        end;
+      end;
+
+     if NTSGData.Geometry.HasRotorData then
+      begin
+       if GeoListView.Items.Count <> 0 then
+        begin
+         GeoListView.Items[1].Caption:='Изменить геометрию ротора';
+         GeoListView.Items[1].SubItems[1]:='Выполнено';
+        end;
+      end;
+
+     if NTSGData.HasOptInput then
+      begin
+       OptListView.Items[0].Caption:='Изменить исходные данные';
+       OptListView.Items[1].ImageIndex:=isEMR;
+       OptListView.Items[2].ImageIndex:=isEMRGrey;
+       OptListView.Items[3].ImageIndex:=isEMRGrey;
+       OptListView.Items[4].ImageIndex:=isEMRGrey;
+       OptListView.Items[5].ImageIndex:=isEMRGreyLupa;
+       OptListView.Items[0].SubItems[1]:='Выполнено';
+  //     EMRListView.Items[0].SubItems[2]:='Морозов';
+  //     EMRProgressBar.Position:=EMRProgressBar.Min;
+      end;
+  
+     if NTSGData.HasOptLimits then
+      begin
+       OptListView.Items[1].Caption:='Изменить граничные условия';
+       OptListView.Items[2].ImageIndex:=isEMRGrey;
+       OptListView.Items[3].ImageIndex:=isEMRGrey;
+       OptListView.Items[4].ImageIndex:=isEMRGrey;
+       OptListView.Items[5].ImageIndex:=isEMRGreyLupa;
+       OptListView.Items[1].SubItems[1]:='Выполнено';
+  //     EMRListView.Items[0].SubItems[2]:='Морозов';
+  //     EMRProgressBar.Position:=EMRProgressBar.Min;
+      end;
+  
+     if (NTSGData.HasOptLimits) and (NTSGData.HasOptInput) then
+      begin
+       OptListView.Items[2].ImageIndex:=isEMR;
+       OptListView.Items[3].ImageIndex:=isEMRGrey;
+       OptListView.Items[4].ImageIndex:=isEMRGrey;
+       OptListView.Items[5].ImageIndex:=isEMRGreyLupa;
+  //     EMRListView.Items[0].SubItems[2]:='Морозов';
+  //     EMRProgressBar.Position:=EMRProgressBar.Min;
+      end;
+  
+     if NTSGData.HasOptInputMas then
+      begin
+       OptListView.Items[2].Caption:='Просмотреть коллекцию';
+       OptListView.Items[2].SubItems[1]:='Выполнено';
+       OptListView.Items[2].ImageIndex:=isEMRLupa;
+       OptListView.Items[3].ImageIndex:=isEMR;
+       OptListView.Items[4].ImageIndex:=isEMRGrey;
+       OptListView.Items[5].ImageIndex:=isEMRGreyLupa;
+      end;
+  
+     if NTSGData.HasOptCriteria then
+      begin
+       OptListView.Items[3].Caption:='Изменить критериальные ограничения';
+       OptListView.Items[3].SubItems[1]:='Выполнено';
+       OptListView.Items[2].ImageIndex:=isEMRLupa;
+       OptListView.Items[3].ImageIndex:=isEMR;
+       OptListView.Items[4].ImageIndex:=isEMR;
+       OptListView.Items[5].ImageIndex:=isEMRGreyLupa;
+      end;
+  
+     if NTSGData.HasOptOutputMas then
+      begin
+       OptListView.Items[2].ImageIndex:=isEMRLupa;
+       OptListView.Items[3].ImageIndex:=isEMR;
+       OptListView.Items[4].ImageIndex:=isEMRLupa;
+       OptListView.Items[4].Caption:='Просмотреть оптимизированную коллекцию';
+       OptListView.Items[4].SubItems[1]:='Выполнено';
+       OptListView.Items[5].ImageIndex:=isEMRLupa;
+      end;
+
+ //    Properties.DefaultPath := ExtractFilePath(Application.ExeName);
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Генератор.sldasm') then
+      SWView.Items[0].ImageIndex := isAsm else
+      SWView.Items[0].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Статор.sldasm') then
+      SWView.Items[1].ImageIndex := isAsm else
+      SWView.Items[1].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Обмотка.sldprt') then
+      SWView.Items[2].ImageIndex := isPrt else
+      SWView.Items[2].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Остов статора.sldasm') then
+      SWView.Items[3].ImageIndex := isAsm else
+      SWView.Items[3].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Основание статора.sldprt') then
+      SWView.Items[4].ImageIndex := isPrt else
+      SWView.Items[4].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Тороид.sldprt') then
+      SWView.Items[5].ImageIndex := isPrt else
+      SWView.Items[5].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Бандаж.sldprt') then
+      SWView.Items[6].ImageIndex := isPrt else
+      SWView.Items[6].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Ротор.sldasm') then
+      SWView.Items[7].ImageIndex := isAsm else
+      SWView.Items[7].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Диск ротора.sldasm') then
+      SWView.Items[8].ImageIndex := isAsm else
+      SWView.Items[8].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Диск ротора.sldprt') then
+      SWView.Items[9].ImageIndex := isPrt else
+      SWView.Items[9].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Сборка наконечника.sldasm') then
+      SWView.Items[10].ImageIndex := isAsm else
+      SWView.Items[10].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Магнит.sldprt') then
+      SWView.Items[11].ImageIndex := isPrt else
+      SWView.Items[11].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Наконечник.sldprt') then
+      SWView.Items[12].ImageIndex := isPrt else
+      SWView.Items[12].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Основание ротора.sldasm') then
+      SWView.Items[13].ImageIndex := isAsm else
+      SWView.Items[13].ImageIndex := isAsmGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Обод ротора.sldprt') then
+      SWView.Items[14].ImageIndex := isPrt else
+      SWView.Items[14].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Диск основания ротора.sldprt') then
+      SWView.Items[15].ImageIndex := isPrt else
+      SWView.Items[15].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Ступица ротора.sldprt') then
+      SWView.Items[16].ImageIndex := isPrt else
+      SWView.Items[16].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Ребро основания ротора.sldprt') then
+      SWView.Items[17].ImageIndex := isPrt else
+      SWView.Items[17].ImageIndex := isPrtGrey;
+
+     if FileExists(ExtractFilePath(Application.ExeName)+'Вал.sldprt') then
+      SWView.Items[18].ImageIndex := isPrt else
+      SWView.Items[18].ImageIndex := isPrtGrey;
+
+    for i:= 0 to SWView.Items.Count-1 do
+     SWView.Items[i].SelectedIndex := SWView.Items[i].ImageIndex;
+
+    end;
+  end;
+end;
+
+procedure TMainNTSGForm.FileOpenExecute(Sender: TObject);
+var ChildForm: TChildForm;
+begin
+ // TODO: Обработчик нажатия на OpenButton
+ if OpenDialog.Execute then
+  begin
+   try
+    ChildForm:=TChildForm.Create(Self);
+    ChildForm.NTSGData.OpenFromFile(OpenDialog.FileName);
+   except
+    MessageDlgCtr('Не удалось открыть файл документа', mtError, [mbOk], 0);
+    Exit;
+   end;
+
+   Refresh1Execute(Self);
+
+   ChildForm.SetFocus;
+  end;
+end;
+
+procedure TMainNTSGForm.FileSaveExecute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на SaveButton
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   if (ActiveMDIChild as TChildForm).NTSGData.SavePath <> '' then
+    begin
+     try
+      (ActiveMDIChild as TChildForm).NTSGData.SaveToFile((ActiveMDIChild as TChildForm).NTSGData.SavePath);
+     except
+      MessageDlgCtr('Не удалось сохранить файл документа', mtError, [mbOk], 0);
+      Exit;
+     end
+    end else
+     FileSaveAsExecute(Self);
+  end;
+end;
+
+procedure TMainNTSGForm.FileSaveAsExecute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на SaveAsButton
+ if (ActiveMDIChild is TChildForm) then
+  if SaveDialog.Execute then
+   try
+    (ActiveMDIChild as TChildForm).NTSGData.SaveToFile(SaveDialog.FileName);
+    (ActiveMDIChild as TChildForm).NTSGData.SavePath := SaveDialog.FileName;
+   except
+    MessageDlgCtr('Не удалось сохранить файл документа', mtError, [mbOk], 0);
+    Exit;
+   end;
+   
+ if (ActiveMDIChild is TEMROutputForm) then
+  ReportSaveExecute(Sender);
+
+ if (ActiveMDIChild is TOptOutputForm) then
+  ReportSaveExecute(Sender);
+
+end;
+
+procedure TMainNTSGForm.HelpAbout1Execute(Sender: TObject);
+begin
+ try
+  AboutBox:=TAboutBox.Create(Self);
+  AboutBox.ShowModal;
+ finally
+  AboutBox.Free;
+  AboutBox:=nil;
+ end;
+end;
+
+procedure TMainNTSGForm.ReportSaveExecute(Sender: TObject);
+begin
+ // TODO: Обработчик нажатия на SaveAsReport
+ if ActiveMDIChild is TEMROutputForm then
+  begin
+   if SaveReportDialog.Execute then
+    begin
+     (ActiveMDIChild as TEMROutputForm).MainRichEdit.PlainText := not(SaveReportDialog.FilterIndex = 0);
+     (ActiveMDIChild as TEMROutputForm).MainRichEdit.Lines.SaveToFile(SaveReportDialog.FileName);
+    end;
+  end;
+  
+ if ActiveMDIChild is TOptOutputForm then
+  begin
+   if SaveReportDialog.Execute then
+    begin
+     (ActiveMDIChild as TOptOutputForm).MainRichEdit.PlainText := not(SaveReportDialog.FilterIndex = 0);
+     (ActiveMDIChild as TOptOutputForm).MainRichEdit.Lines.SaveToFile(SaveReportDialog.FileName);
+    end;
+  end;
+end;
+
+procedure TMainNTSGForm.FilePrintExecute(Sender: TObject);
+begin
+ if ActiveMDIChild is TEMROutputForm then
+  if PrintDialog.Execute then
+   (ActiveMDIChild as TEMROutputForm).MainRichEdit.Print('Документ электромагнитного расчёта генератора');
+ if ActiveMDIChild is TOptOutputForm then
+  if PrintDialog.Execute then
+   (ActiveMDIChild as TOptOutputForm).MainRichEdit.Print('Документ оптимизационного расчёта генератора');
+end;
+
+procedure TMainNTSGForm.ViewLgIconExecute(Sender: TObject);
+begin
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   (ActiveMDIChild as TChildForm).ToolButton1Click(Self);
+   (ActiveMDIChild as TChildForm).ToolButton1.Down:=True;
+  end;
+end;
+
+procedure TMainNTSGForm.ViewSmIconExecute(Sender: TObject);
+begin
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   (ActiveMDIChild as TChildForm).ToolButton2Click(Self);
+   (ActiveMDIChild as TChildForm).ToolButton2.Down:=True;
+  end;
+end;
+
+procedure TMainNTSGForm.ViewListExecute(Sender: TObject);
+begin
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   (ActiveMDIChild as TChildForm).ToolButton3Click(Self);
+   (ActiveMDIChild as TChildForm).ToolButton3.Down:=True;
+  end;
+end;
+
+procedure TMainNTSGForm.ViewReportExecute(Sender: TObject);
+begin
+ if (ActiveMDIChild is TChildForm) then
+  begin
+   (ActiveMDIChild as TChildForm).ToolButton4Click(Self);
+   (ActiveMDIChild as TChildForm).ToolButton4.Down:=True;
+  end;
+end;
+
+procedure TMainNTSGForm.ShowHint(Sender: TObject);
+begin
+ StatusBar.Panels[0].Style := psText;  
+ StatusBar.Panels[0].Text := Application.Hint;
+end;
+
+procedure TMainNTSGForm.FormCreate(Sender: TObject);
+var UNSize: Cardinal;
+begin
+ AppAccuracy := 1000;
+
+ Properties := TProperties.Create;
+
+ if (Properties.CaptionVersion) and (Properties.Version<>'Неизвестно') then
+  Caption := 'Проектирование низкоскоростного торцевого генератора v'+Properties.Version;
+
+ if Properties.MaximizeAtStart then
+  WindowState := wsMaximized else WindowState := wsNormal; 
+
+ // Имя пользователя
+
+ UNSize := MAX_COMPUTERNAME_LENGTH + 1;
+ UserName := StrAlloc(UNSize);
+ if not(GetUserName(UserName, UNSize)) then
+  UserName := 'Неизвестно';
+
+ Application.OnHint := ShowHint;
+end;
+
+procedure TMainNTSGForm.StatusBarDrawPanel(StatusBar: TStatusBar;
+  Panel: TStatusPanel; const Rect: TRect);
+//var ImgIndex: integer;
+begin
+{ if Panel = StatusBar.Panels[2] then
+  begin
+   if (ActiveMDIChild is TChildForm) then
+    begin
+     ImgIndex := 31;
+     if (ActiveMDIChild as TChildForm).NTSGData.HasEMRInput then
+       ImgIndex := 32;
+     if (ActiveMDIChild as TChildForm).NTSGData.HasOptInput then
+       ImgIndex := 33;
+     ImageList1.Draw(StatusBar.Canvas,Rect.Left+5,Rect.Top,ImgIndex);
+    end;
+  end;  }
+
+ if StatusBar.Width<600 then
+  begin
+   StatusBar.Panels[0].Width := round(StatusBar.Width/3);
+   StatusBar.Panels[1].Width := round(StatusBar.Width/3);
+   Exit;
+  end;
+
+ StatusBar.Panels[0].Width := StatusBar.Width - 400;
+ StatusBar.Panels[1].Width := 200;
+ StatusBar.Panels[2].Width := 200;
+end;
+
+procedure TMainNTSGForm.CreateWnd;
+begin
+ inherited CreateWnd;
+ FNewClientProc := MakeObjectInstance(ClientWndProc);
+ FOldClientProc := Pointer(GetWindowLong(ClientHandle, GWL_WNDPROC));
+ SetWindowLong(ClientHandle, GWL_WNDPROC, LongInt(FNewClientProc));
+end;
+
+procedure TMainNTSGForm.DrawCentred;
+var CR: TRect;
+begin
+ GetWindowRect(ClientHandle, CR);
+ with MainImage do
+  BitBlt(FDrawDC, ((CR.Right - CR.Left) - Picture.Width) div 2,
+      ((CR.Bottom - CR.Top) - Picture.Height) div 2,
+      Picture.Graphic.Width, Picture.Graphic.Height,
+      Picture.Bitmap.Canvas.Handle, 0, 0, SRCPAINT		);
+end;
+
+procedure TMainNTSGForm.ClientWndProc(var Message: TMessage);
+begin
+case Message.Msg of
+ WM_ERASEBKGND:
+  begin
+   CallWindowProc(FOldClientProc, ClientHandle,
+       Message.Msg, Message.wParam, Message.lParam);
+   FDrawDC := TWMEraseBkGnd(Message).DC;
+   DrawCentred;
+   Message.Result := 1;
+  end;
+ WM_VSCROLL, WM_HSCROLL:
+  begin
+   Message.Result := CallWindowProc(FOldClientProc, ClientHandle,
+    Message.Msg, Message.wParam, Message.lParam);
+   InvalidateRect(ClientHandle, nil, True);
+  end;
+ else
+  Message.Result := CallWindowProc(FOldClientProc, ClientHandle,
+    Message.Msg, Message.wParam, Message.lParam);
+ end;
+end;
+
+procedure TMainNTSGForm.FileQuickPrintExecute(Sender: TObject);
+begin
+ if ActiveMDIChild is TEMROutputForm then
+  (ActiveMDIChild as TEMROutputForm).MainRichEdit.Print('Документ электромагнитного расчёта генератора');
+ if ActiveMDIChild is TOptOutputForm then
+  (ActiveMDIChild as TOptOutputForm).MainRichEdit.Print('Документ оптимизационного расчёта генератора');
+end;
+
+initialization
+  {$i MainFormUnit.lrs}
+  {$i MainFormUnit.lrs}
+  {$i MainFormUnit.lrs}
+
+end.
+

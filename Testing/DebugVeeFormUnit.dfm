@@ -1,0 +1,300 @@
+object DebugVeeForm: TDebugVeeForm
+  Left = 0
+  Top = 0
+  BorderStyle = bsDialog
+  Caption = 'DebugVeeForm'
+  ClientHeight = 401
+  ClientWidth = 659
+  Color = clBtnFace
+  Font.Charset = DEFAULT_CHARSET
+  Font.Color = clWindowText
+  Font.Height = -11
+  Font.Name = 'Tahoma'
+  Font.Style = []
+  OldCreateOrder = False
+  OnShow = FormShow
+  PixelsPerInch = 96
+  TextHeight = 13
+  object PageControl1: TPageControl
+    Left = 0
+    Top = 0
+    Width = 659
+    Height = 341
+    ActivePage = TabSheet1
+    Align = alClient
+    TabOrder = 0
+    object TabSheet1: TTabSheet
+      Caption = #1042#1074#1086#1076' '#1076#1072#1085#1085#1099#1093
+      object Label1: TLabel
+        Left = 66
+        Top = 11
+        Width = 168
+        Height = 13
+        Caption = #1052#1086#1097#1085#1086#1089#1090#1100' '#1085#1072' '#1074#1077#1076#1091#1097#1077#1084' '#1074#1072#1083#1091', '#1082#1042#1090
+      end
+      object Label2: TLabel
+        Left = 8
+        Top = 38
+        Width = 226
+        Height = 13
+        Caption = #1063#1072#1089#1090#1086#1090#1072' '#1074#1088#1072#1097#1077#1085#1080#1103' '#1074#1077#1076#1091#1097#1077#1075#1086' '#1096#1082#1080#1074#1072', '#1086#1073'/'#1084#1080#1085
+      end
+      object Label3: TLabel
+        Left = 128
+        Top = 65
+        Width = 106
+        Height = 13
+        Caption = #1055#1077#1088#1077#1076#1072#1090#1086#1095#1085#1086#1077' '#1095#1080#1089#1083#1086
+      end
+      object Label4: TLabel
+        Left = 97
+        Top = 119
+        Width = 137
+        Height = 13
+        Caption = #1052#1077#1078#1086#1089#1077#1074#1086#1077' '#1088#1072#1089#1089#1090#1086#1103#1085#1080#1077', '#1084#1084
+      end
+      object Label5: TLabel
+        Left = 82
+        Top = 173
+        Width = 152
+        Height = 13
+        Caption = #1050#1086#1101#1092#1092#1080#1094#1080#1077#1085#1090' '#1088#1077#1078#1080#1084#1072' '#1088#1072#1073#1086#1090#1099
+      end
+      object Label6: TLabel
+        Left = 113
+        Top = 146
+        Width = 121
+        Height = 13
+        Caption = #1059#1075#1086#1083' '#1085#1072#1082#1083#1086#1085#1072' '#1087#1077#1088#1077#1076#1072#1095#1080
+      end
+      object Label7: TLabel
+        Left = 142
+        Top = 227
+        Width = 92
+        Height = 13
+        Caption = #1058#1080#1087#1086#1088#1072#1079#1084#1077#1088' '#1088#1077#1084#1085#1103
+      end
+      object Label8: TLabel
+        Left = 124
+        Top = 200
+        Width = 110
+        Height = 13
+        Caption = #1058#1080#1087' '#1085#1072#1090#1103#1078#1077#1085#1080#1103' '#1088#1077#1084#1085#1103
+      end
+      object Label9: TLabel
+        Left = 84
+        Top = 92
+        Width = 150
+        Height = 13
+        Caption = #1044#1080#1072#1084#1077#1090#1088' '#1084#1077#1085#1100#1096#1077#1075#1086' '#1096#1082#1080#1074#1072', '#1084#1084
+      end
+      object EditP1: TEdit
+        Left = 240
+        Top = 8
+        Width = 145
+        Height = 21
+        TabOrder = 0
+        Text = '2'
+        OnExit = EditP1Exit
+      end
+      object EditN1: TEdit
+        Left = 240
+        Top = 35
+        Width = 145
+        Height = 21
+        TabOrder = 1
+        Text = '720'
+        OnExit = EditN1Exit
+      end
+      object EditUp: TEdit
+        Left = 240
+        Top = 62
+        Width = 145
+        Height = 21
+        TabOrder = 2
+        Text = '3'
+        OnExit = EditUpExit
+      end
+      object ComboBoxD1: TComboBox
+        Left = 240
+        Top = 89
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 3
+        Text = #1053#1077' '#1074#1072#1078#1085#1086
+        OnChange = ComboBoxD1Change
+        OnKeyPress = ComboBoxD1KeyPress
+        Items.Strings = (
+          #1053#1077' '#1074#1072#1078#1085#1086)
+      end
+      object ComboBoxCp: TComboBox
+        Left = 240
+        Top = 170
+        Width = 145
+        Height = 21
+        AutoComplete = False
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 4
+        Text = #1057#1087#1086#1082#1086#1081#1085#1072#1103' '#1085#1072#1075#1088#1091#1079#1082#1072
+        OnChange = ComboBoxCpChange
+        Items.Strings = (
+          #1057#1087#1086#1082#1086#1081#1085#1072#1103' '#1085#1072#1075#1088#1091#1079#1082#1072
+          #1059#1084#1077#1088#1077#1085#1085#1099#1077' '#1082#1086#1083#1077#1073#1072#1085#1080#1103
+          #1047#1085#1072#1095#1080#1090#1077#1083#1100#1085#1099#1077' '#1082#1086#1083#1077#1073#1072#1085#1080#1103
+          #1059#1076#1072#1088#1085#1099#1077' '#1085#1072#1075#1088#1091#1079#1082#1080)
+      end
+      object ComboBoxQ: TComboBox
+        Left = 240
+        Top = 143
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 5
+        Text = #1052#1077#1085#1077#1077' 60'#176
+        Items.Strings = (
+          #1052#1077#1085#1077#1077' 60'#176
+          #1054#1090' 60'#176' '#1076#1086' 80'#176
+          #1041#1086#1083#1077#1077' 80'#176)
+      end
+      object ComboBoxA: TComboBox
+        Left = 240
+        Top = 116
+        Width = 145
+        Height = 21
+        ItemIndex = 0
+        TabOrder = 6
+        Text = #1053#1077' '#1074#1072#1078#1085#1086
+        OnExit = ComboBoxAExit
+        Items.Strings = (
+          #1053#1077' '#1074#1072#1078#1085#1086
+          #1052#1080#1085#1080#1084#1091#1084)
+      end
+      object ComboBoxSect: TComboBox
+        Left = 240
+        Top = 224
+        Width = 145
+        Height = 21
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 7
+        Text = #1053#1077' '#1074#1072#1078#1085#1086
+        OnChange = ComboBoxSectChange
+        Items.Strings = (
+          #1053#1077' '#1074#1072#1078#1085#1086
+          #1054
+          #1040
+          #1041
+          #1042
+          #1043
+          #1044
+          #1045)
+      end
+      object ComboBoxTens: TComboBox
+        Left = 240
+        Top = 197
+        Width = 145
+        Height = 21
+        AutoComplete = False
+        Style = csDropDownList
+        ItemIndex = 0
+        TabOrder = 8
+        Text = #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1086#1077
+        OnChange = ComboBoxTensChange
+        Items.Strings = (
+          #1040#1074#1090#1086#1084#1072#1090#1080#1095#1077#1089#1082#1086#1077
+          #1055#1077#1088#1080#1086#1076#1080#1095#1077#1089#1082#1086#1077)
+      end
+    end
+    object TabSheet2: TTabSheet
+      Caption = #1042#1099#1074#1086#1076' '#1076#1072#1085#1085#1099#1093
+      ImageIndex = 1
+      object StringGrid1: TStringGrid
+        Left = 0
+        Top = 0
+        Width = 651
+        Height = 313
+        Align = alClient
+        ColCount = 20
+        DefaultColWidth = 31
+        DefaultRowHeight = 12
+        FixedCols = 0
+        RowCount = 2
+        TabOrder = 0
+      end
+    end
+  end
+  object Panel1: TPanel
+    Left = 0
+    Top = 341
+    Width = 659
+    Height = 41
+    Align = alBottom
+    BevelOuter = bvNone
+    TabOrder = 1
+    object Button1: TButton
+      Left = 566
+      Top = 10
+      Width = 75
+      Height = 25
+      Caption = #1056#1072#1089#1095#1105#1090
+      Default = True
+      TabOrder = 0
+      OnClick = Button1Click
+    end
+    object Button2: TButton
+      Left = 448
+      Top = 10
+      Width = 97
+      Height = 25
+      Caption = 'Button2'
+      TabOrder = 1
+      OnClick = Button2Click
+    end
+    object ButtonMonkey: TButton
+      Left = 296
+      Top = 10
+      Width = 129
+      Height = 25
+      Caption = 'Monkey Test'
+      TabOrder = 2
+      OnClick = ButtonMonkeyClick
+    end
+    object Button3: TButton
+      Left = 132
+      Top = 10
+      Width = 135
+      Height = 25
+      Caption = 'Next Step of MT'
+      TabOrder = 3
+      OnClick = Button3Click
+    end
+    object Button4: TButton
+      Left = 4
+      Top = 10
+      Width = 122
+      Height = 25
+      Caption = 'Button4'
+      TabOrder = 4
+      OnClick = Button4Click
+    end
+  end
+  object StatusBar1: TStatusBar
+    Left = 0
+    Top = 382
+    Width = 659
+    Height = 19
+    Panels = <
+      item
+        Width = 500
+      end>
+  end
+  object ApplicationEvents1: TApplicationEvents
+    OnException = ApplicationEvents1Exception
+    Left = 568
+    Top = 192
+  end
+end
