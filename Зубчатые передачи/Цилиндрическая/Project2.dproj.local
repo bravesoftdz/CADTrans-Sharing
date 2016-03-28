@@ -1,0 +1,59 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<BorlandProject>
+	<Transactions>
+    <Transaction>1899.12.30 00:00:00.000.911,=F:\1\NErushin\работа\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.280,=F:\1\NErushin\работа\Unit4.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.449,F:\1\NErushin\работа\Unit2.pas=F:\1\NErushin\работа\ReadMaterials.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.894,=F:\1\NErushin\работа\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.296,=F:\1\NErushin\работа\Unit4.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.022,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\CogWheelTransmission.PAS</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.670,F:\1\NErushin\работа над цилиндрической зубчатой передачей\CogWheelTransmission.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.359,=F:\1\NErushin\работа\Unit4.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.303,=F:\1\NErushin\работа\Unit4.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.804,=F:\1\NErushin\работа\Unit6.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.788,F:\1\NErushin\работа\ReadMaterials.pas=F:\1\NErushin\работа\Materials.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\TCAD23\OBREAD.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.109,F:\1\NErushin\работа над цилиндрической зубчатой передачей\modul.pas=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.824,F:\1\NErushin\работа над цилиндрической зубчатой передачей\modul.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\CALCULAT.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dproj,D:\работа над цилиндрической зубчатой передачей\Project2.dproj=C:\Users\Колян\Documents\RAD Studio\Projects\Project2.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.112,F:\1\NErushin\работа\constants.pas=F:\1\NErushin\работа\Unit4.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\CALCULAT.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\CALCULAT.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\TCAD23\DESIGNER.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.932,F:\1\NErushin\работа\Unit3.pas=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.681,F:\1\NErushin\работа над цилиндрической зубчатой передачей\CALCULAT.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.pas,D:\работа над цилиндрической зубчатой передачей\Unit1.pas=C:\Users\Колян\Documents\RAD Studio\Projects\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.984,F:\1\NErushin\работа\Unit3.pas=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.929,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\COGWHEEL.PAS</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.135,F:\1\NErushin\работа\CALCULAT008.pas=F:\1\NErushin\работа над цилиндрической зубчатой передачей\CALCULAT008.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.454,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\DESIGNER.PAS</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.777,F:\1\NErushin\работа над цилиндрической зубчатой передачей\COGWHEEL.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.194,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit3.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.123,F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit2.pas=F:\1\NErushin\работа над цилиндрической зубчатой передачей\CALCULAT008.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.903,F:\1\NErushin\работа\Unit1.dfm=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.049,=F:\1\NErushin\работа\Unit5.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.PAS,D:\работа над цилиндрической зубчатой передачей\GOST.PAS=</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.dfm,D:\работа над цилиндрической зубчатой передачей\Unit1.dfm=C:\Users\Колян\Documents\RAD Studio\Projects\Unit1.dfm</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.001,F:\1\NErushin\работа\Project2.dproj=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Project2.dproj</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.662,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.026,=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit2.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.903,F:\1\NErushin\работа\Unit1.pas=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit1.pas</Transaction>
+    <Transaction>1899.12.30 00:00:00.000.932,F:\1\NErushin\работа\Unit3.dfm=F:\1\NErushin\работа над цилиндрической зубчатой передачей\Unit3.dfm</Transaction>
+  </Transactions>
+	<ProjectSortOrder AutoSort="0" SortType="0">
+    <File Path="CALCULAT008.pas"/>
+    <File Path="Materials.pas"/>
+    <File Path="Unit1.pas"/>
+    <File Path="Unit1.dfm"/>
+    <File Path="Unit2.pas"/>
+    <File Path="Unit2.dfm"/>
+    <File Path="constants.pas"/>
+    <File Path="Unit4.pas"/>
+    <File Path="Unit4.dfm"/>
+    <File Path="Unit5.pas"/>
+    <File Path="Unit5.dfm"/>
+    <File Path="Unit6.pas"/>
+    <File Path="Unit6.dfm"/>
+  </ProjectSortOrder>
+</BorlandProject>
